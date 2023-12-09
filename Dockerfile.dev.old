@@ -1,0 +1,18 @@
+FROM debian:trixie-slim AS builder
+RUN apt-get update && apt-get install curl tar -y
+RUN curl -LO https://github.com/jdrews/logstation/releases/download/v2.1.0/logstation_Linux_x86_64.tar.gz
+RUN tar xvzf logstation_Linux_x86_64.tar.gz
+
+
+FROM debian:trixie-slim AS app
+WORKDIR /app
+RUN mkdir -p /app/data
+RUN chmod 777 /app/data
+RUN apt-get update && apt-get install nano -y
+COPY --from=builder logstation /usr/local/bin/logstation
+COPY logstation.conf logstation.conf
+COPY start.sh start.sh
+RUN chmod a+x /usr/local/bin/logstation
+RUN chmod a+x start.sh
+
+CMD [ "./start.sh" ]
